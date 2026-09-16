@@ -16,3 +16,9 @@ export const voteSchema = z.object({
   query: z.any().optional(),
   params: z.any().optional(),
 });
+
+export const voteStateSchema = z.object({
+  query: targetShape,
+  body: z.any().optional(),
+  params: z.any().optional(),
+});

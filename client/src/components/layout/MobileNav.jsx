@@ -1,10 +1,5 @@
 import { NavLink } from 'react-router-dom';
-
-const NAV_ITEMS = [
-  { to: '/', label: 'Home', end: true },
-  { to: '/ask', label: 'Ask question' },
-  { to: '/profile', label: 'Profile' },
-];
+import { NAV_ITEMS } from './navigation.js';
 
 function linkClasses({ isActive }) {
   return `block rounded px-3 py-2 text-base font-medium transition-colors ${

@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
 import Avatar from '../common/Avatar.jsx';
 
@@ -8,10 +8,16 @@ export default function Topbar({ onOpenMenu }) {
   const [search, setSearch] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    setSearch(location.pathname === '/explore' ? new URLSearchParams(location.search).get('search') || '' : '');
+  }, [location.pathname, location.search]);
 
   function handleSearchSubmit(e) {
     e.preventDefault();
-    // Real search wiring arrives in Phase 5 alongside the live feed.
+    const query = search.trim();
+    navigate(query ? `/explore?${new URLSearchParams({ search: query })}` : '/explore');
   }
 
   async function handleLogout() {
@@ -29,12 +35,14 @@ export default function Topbar({ onOpenMenu }) {
         ☰
       </button>
 
-      <form onSubmit={handleSearchSubmit} className="flex-1">
+      <form role="search" onSubmit={handleSearchSubmit} className="min-w-0 flex-1">
         <input
           type="search"
+          aria-label="Search questions across the university"
+          maxLength={200}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search questions"
+          placeholder="Search all departments"
           className="w-full max-w-md rounded border border-border bg-bg px-3 py-1.5 text-sm text-ink placeholder:text-ink-muted focus-visible:border-accent"
         />
       </form>

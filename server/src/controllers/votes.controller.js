@@ -2,6 +2,10 @@ import { asyncHandler } from '../utils/asyncHandler.js';
 import { ok } from '../utils/apiResponse.js';
 import * as votesService from '../services/votes.service.js';
 
+export const getVoteState = asyncHandler(async (req, res) => {
+  ok(res, await votesService.getVoteState({ ...req.query, user_id: req.user.id }));
+});
+
 export const addVote = asyncHandler(async (req, res) => {
   const vote = await votesService.addVote({ ...req.body, user_id: req.user.id });
   ok(res, vote, 201);

@@ -6,7 +6,7 @@ export default function ErrorState({ message, onRetry }) {
       <p className="font-medium text-danger">Something went wrong</p>
       <p className="mt-1 text-ink-muted">{message}</p>
       {onRetry && (
-        <Button variant="secondary" className="mt-3" onClick={onRetry}>
+        <Button type="button" variant="secondary" className="mt-3" onClick={onRetry}>
           Try again
         </Button>
       )}

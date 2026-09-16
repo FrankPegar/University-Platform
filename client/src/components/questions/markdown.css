@@ -1,0 +1,97 @@
+.question-markdown {
+  overflow-wrap: anywhere;
+}
+
+.question-markdown > :first-child {
+  margin-top: 0;
+}
+
+.question-markdown > :last-child {
+  margin-bottom: 0;
+}
+
+.question-markdown p,
+.question-markdown ul,
+.question-markdown ol,
+.question-markdown blockquote {
+  margin-block: 1rem;
+}
+
+.question-markdown :is(h2, h3, h4, h5, h6) {
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.question-markdown h2 { font-size: 1.25rem; }
+.question-markdown h3 { font-size: 1.125rem; }
+.question-markdown :is(h4, h5, h6) { font-size: 1rem; }
+.question-markdown ul { list-style: disc; padding-left: 1.5rem; }
+.question-markdown ol { list-style: decimal; padding-left: 1.5rem; }
+.question-markdown li > :is(ul, ol) { margin-block: 0.25rem; }
+
+.question-markdown blockquote {
+  border-left: 3px solid rgb(var(--color-border));
+  padding-left: 1rem;
+  color: rgb(var(--color-ink-muted));
+}
+
+.question-markdown a {
+  color: rgb(var(--color-accent));
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.question-markdown code {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 0.875em;
+}
+
+.question-markdown :not(pre) > code {
+  border: 1px solid rgb(var(--color-border));
+  border-radius: 4px;
+  background: rgb(var(--color-bg));
+  padding: 0.1rem 0.3rem;
+}
+
+.question-markdown pre {
+  margin: 0;
+  white-space: pre;
+  overflow-wrap: normal;
+  line-height: 1.6;
+}
+
+.question-markdown pre code {
+  font-size: 0.8125rem;
+}
+
+.question-markdown hr {
+  margin-block: 1.5rem;
+  border-color: rgb(var(--color-border));
+}
+
+.question-markdown img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+}
+
+/* Syntax colors follow the existing light/dark theme tokens. */
+.question-markdown :is(.hljs-keyword, .hljs-selector-tag, .hljs-type, .hljs-literal) {
+  color: rgb(var(--color-accent));
+  font-weight: 600;
+}
+.question-markdown :is(.hljs-string, .hljs-regexp, .hljs-addition, .hljs-attribute) {
+  color: rgb(var(--color-success));
+}
+.question-markdown :is(.hljs-number, .hljs-symbol, .hljs-deletion) {
+  color: rgb(var(--color-danger));
+}
+.question-markdown :is(.hljs-title, .hljs-built_in, .hljs-attr, .hljs-meta) {
+  color: rgb(var(--color-accent));
+}
+.question-markdown :is(.hljs-comment, .hljs-quote) {
+  color: rgb(var(--color-ink-muted));
+  font-style: italic;
+}

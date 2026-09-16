@@ -1,6 +1,18 @@
 import { supabaseAdmin } from '../config/supabase.js';
 import { AppError } from '../utils/AppError.js';
 
+// Return only the total and the authenticated viewer's state, never voter IDs.
+export async function getVoteState({ user_id, question_id, answer_id }) {
+  let query = supabaseAdmin.from('votes').select('user_id');
+  query = question_id ? query.eq('question_id', question_id) : query.eq('answer_id', answer_id);
+  const { data, error } = await query;
+  if (error) throw new AppError(error.message, 400);
+  return {
+    vote_count: (data || []).length,
+    has_voted: (data || []).some((vote) => vote.user_id === user_id),
+  };
+}
+
 export async function addVote({ user_id, question_id, answer_id }) {
   const { data, error } = await supabaseAdmin
     .from('votes')
