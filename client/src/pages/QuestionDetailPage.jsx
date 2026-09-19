@@ -7,6 +7,8 @@ import EmptyState from '../components/common/EmptyState.jsx';
 import ErrorState from '../components/common/ErrorState.jsx';
 import Spinner from '../components/common/Spinner.jsx';
 import AnswersSection from '../components/answers/AnswersSection.jsx';
+import CommentsSection from '../components/social/CommentsSection.jsx';
+import VoteControl from '../components/social/VoteControl.jsx';
 
 // Load the renderer only when a question is opened, keeping feeds lightweight.
 const MarkdownBody = lazy(() => import('../components/questions/MarkdownBody.jsx'));
@@ -99,7 +101,7 @@ export default function QuestionDetailPage() {
           {wasUpdated && <span>Updated <time dateTime={question.updated_at}>{updatedDate}</time></span>}
         </div>
         <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-ink-muted">
-          <span>{question.vote_count} {question.vote_count === 1 ? 'vote' : 'votes'}</span>
+          <VoteControl targetType="question" targetId={question.id} initialCount={question.vote_count} />
           <span>{question.answer_count} {question.answer_count === 1 ? 'answer' : 'answers'}</span>
           {question.has_accepted_answer ? (
             <span className="rounded bg-success/10 px-2 py-0.5 text-xs font-medium text-success">Accepted answer</span>
@@ -123,9 +125,11 @@ export default function QuestionDetailPage() {
             ))}
           </div>
         )}
+        <CommentsSection targetType="question" targetId={question.id} />
       </article>
 
       <AnswersSection
+        questionAuthorId={question.author?.id}
         key={requestKey}
         questionId={question.id}
         initialCount={question.answer_count}
