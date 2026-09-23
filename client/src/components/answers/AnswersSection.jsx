@@ -86,7 +86,7 @@ export default function AnswersSection({ questionId, questionAuthorId, initialCo
         : await apiClient.post(path, {}, { token });
       if (!mounted.current) return;
       updateAnswers(currentAnswers.current.map((item) => item.id === updated.id
-        ? { ...item, ...updated }
+        ? { ...item, is_accepted: updated.is_accepted }
         : { ...item, is_accepted: updated.is_accepted ? false : item.is_accepted }));
     } catch (error) {
       if (!mounted.current) return;
@@ -139,6 +139,9 @@ export default function AnswersSection({ questionId, questionAuthorId, initialCo
               canAccept={canAccept}
               acceptanceDisabled={Boolean(acceptingId) || needsRefresh}
               onToggleAcceptance={toggleAcceptance}
+              onEdited={(updated) => updateAnswers(currentAnswers.current.map(item => item.id === updated.id
+                ? { ...item, body: updated.body, updated_at: updated.updated_at }
+                : item))}
             />
           ))}
         </div>

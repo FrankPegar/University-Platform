@@ -126,7 +126,8 @@ export async function updateQuestion(id, requestingUserId, { title, body, tags }
   }
 
   if (tags !== undefined) {
-    await supabaseAdmin.from('question_tags').delete().eq('question_id', id);
+    const { error } = await supabaseAdmin.from('question_tags').delete().eq('question_id', id);
+    if (error) throw new AppError(error.message, 400);
     if (tags.length > 0) {
       await attachTags(id, tags);
     }

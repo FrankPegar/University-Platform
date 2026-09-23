@@ -9,6 +9,7 @@ import Spinner from '../components/common/Spinner.jsx';
 import AnswersSection from '../components/answers/AnswersSection.jsx';
 import CommentsSection from '../components/social/CommentsSection.jsx';
 import VoteControl from '../components/social/VoteControl.jsx';
+import QuestionEditForm from '../components/questions/QuestionEditForm.jsx';
 
 // Load the renderer only when a question is opened, keeping feeds lightweight.
 const MarkdownBody = lazy(() => import('../components/questions/MarkdownBody.jsx'));
@@ -24,10 +25,11 @@ function readableDate(value) {
 
 export default function QuestionDetailPage() {
   const { id } = useParams();
-  const { session } = useAuth();
+  const { session, user } = useAuth();
   const token = session?.access_token;
   const [result, setResult] = useState(null);
   const [attempt, setAttempt] = useState(0);
+  const [editingKey, setEditingKey] = useState(null);
   const requestKey = JSON.stringify([id, token]);
 
   const handleAnswersChange = useCallback((answers) => {
@@ -110,11 +112,22 @@ export default function QuestionDetailPage() {
           )}
         </div>
 
-        <div className="mt-6 border-t border-border pt-6">
+        {user?.id && user.id === question.author?.id && editingKey !== requestKey && (
+          <Button type="button" variant="secondary" className="mt-4" onClick={() => setEditingKey(requestKey)}>Edit question</Button>
+        )}
+        {editingKey === requestKey && user?.id === question.author?.id ? (
+          <QuestionEditForm key={requestKey} question={question} onCancel={() => setEditingKey(null)} onSaved={(updated) => {
+            setResult(previous => previous?.key === requestKey ? {
+              ...previous,
+              question: { ...previous.question, title: updated.title, body: updated.body, tags: updated.tags, updated_at: updated.updated_at },
+            } : previous);
+            setEditingKey(null);
+          }} />
+        ) : <div className="mt-6 border-t border-border pt-6">
           <Suspense fallback={<div role="status"><Spinner label="Loading question body…" /></div>}>
             <MarkdownBody key={question.id} body={question.body} />
           </Suspense>
-        </div>
+        </div>}
 
         {question.tags?.length > 0 && (
           <div className="mt-6 flex flex-wrap gap-2" aria-label="Question tags">

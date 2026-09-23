@@ -1,11 +1,17 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useState } from 'react';
+import { useAuth } from '../../context/AuthContext.jsx';
+import Button from '../common/Button.jsx';
+import AnswerEditForm from './AnswerEditForm.jsx';
 import Spinner from '../common/Spinner.jsx';
 import CommentsSection from '../social/CommentsSection.jsx';
 import VoteControl from '../social/VoteControl.jsx';
 
 const MarkdownBody = lazy(() => import('../questions/MarkdownBody.jsx'));
 
-export default function AnswerCard({ answer, canAccept, acceptanceDisabled, onToggleAcceptance }) {
+export default function AnswerCard({ answer, canAccept, acceptanceDisabled, onToggleAcceptance, onEdited }) {
+  const { user } = useAuth();
+  const [editing, setEditing] = useState(false);
+  const canEdit = Boolean(user?.id && user.id === answer.author?.id);
   const date = new Date(answer.created_at);
   const hasDate = answer.created_at && !Number.isNaN(date.getTime());
 
@@ -38,9 +44,17 @@ export default function AnswerCard({ answer, canAccept, acceptanceDisabled, onTo
           {answer.is_accepted ? 'Unaccept answer' : 'Accept answer'}
         </button>
       )}
-      <Suspense fallback={<div role="status"><Spinner label="Loading answer body…" /></div>}>
+      {canEdit && !editing && (
+        <Button type="button" variant="secondary" className="mb-4 ml-2" disabled={acceptanceDisabled} onClick={() => setEditing(true)}>Edit answer</Button>
+      )}
+      {canEdit && editing ? (
+        <AnswerEditForm answer={answer} disabled={acceptanceDisabled} onCancel={() => setEditing(false)} onSaved={(updated) => {
+          onEdited(updated);
+          setEditing(false);
+        }} />
+      ) : <Suspense fallback={<div role="status"><Spinner label="Loading answer body…" /></div>}>
         <MarkdownBody body={answer.body} />
-      </Suspense>
+      </Suspense>}
       <CommentsSection targetType="answer" targetId={answer.id} />
     </article>
   );

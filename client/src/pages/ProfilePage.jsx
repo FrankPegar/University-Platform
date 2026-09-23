@@ -4,12 +4,15 @@ import { apiClient } from '../lib/apiClient.js';
 import Spinner from '../components/common/Spinner.jsx';
 import ErrorState from '../components/common/ErrorState.jsx';
 import Avatar from '../components/common/Avatar.jsx';
+import Button from '../components/common/Button.jsx';
+import ProfileEditForm from '../components/profiles/ProfileEditForm.jsx';
 
 export default function ProfilePage() {
   const { session } = useAuth();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [editing, setEditing] = useState(false);
 
   const loadProfile = useCallback(() => {
     setLoading(true);
@@ -40,6 +43,12 @@ export default function ProfilePage() {
   return (
     <div>
       <h1 className="mb-6 text-xl font-semibold tracking-tight text-ink">Profile</h1>
+      {editing ? (
+        <ProfileEditForm profile={profile} onCancel={() => setEditing(false)} onSaved={(updated) => {
+          setProfile(updated);
+          setEditing(false);
+        }} />
+      ) : <Button type="button" variant="secondary" className="mb-4" onClick={() => setEditing(true)}>Edit Profile</Button>}
 
       <div className="rounded border border-border bg-surface p-6">
         <div className="flex items-center gap-4">

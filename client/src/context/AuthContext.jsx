@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { apiClient, ApiError } from '../lib/apiClient.js';
 import { loadStoredSession, saveStoredSession, clearStoredSession } from '../lib/session.js';
 
@@ -10,6 +10,8 @@ export function AuthProvider({ children }) {
   const [session, setSession] = useState(null); // { access_token, refresh_token }
   const [user, setUser] = useState(null); // { id, email }
   const [profile, setProfile] = useState(null); // profiles row (with department/course)
+  const activeToken = useRef(null);
+  activeToken.current = session?.access_token;
 
   const applySession = useCallback(async (nextSession, nextUser) => {
     setSession(nextSession);
@@ -89,9 +91,18 @@ export function AuthProvider({ children }) {
     }
   }, [session]);
 
+  const updateProfile = useCallback(async (updates) => {
+    const token = session?.access_token;
+    const updated = await apiClient.patch(`/profiles/${encodeURIComponent(user.id)}`, updates, { token });
+    // The PATCH response contains the canonical profile, including joined
+    // department/course names. Do not restore a profile after logout.
+    if (activeToken.current === token) setProfile(updated);
+    return updated;
+  }, [session, user]);
+
   const value = useMemo(
-    () => ({ status, session, user, profile, login, register, logout }),
-    [status, session, user, profile, login, register, logout]
+    () => ({ status, session, user, profile, login, register, logout, updateProfile }),
+    [status, session, user, profile, login, register, logout, updateProfile]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
