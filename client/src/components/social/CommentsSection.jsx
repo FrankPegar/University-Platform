@@ -1,3 +1,4 @@
+import Avatar from '../common/Avatar.jsx';
 import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { apiClient } from '../../lib/apiClient.js';
@@ -89,6 +90,7 @@ function CommentsThread({ targetType, targetId, token }) {
               <li key={comment.id} className="py-2">
                 <p className="whitespace-pre-wrap break-words text-sm text-ink">{comment.body}</p>
                 <div className="mt-1 flex flex-wrap gap-x-2 gap-y-1 text-xs text-ink-muted">
+                  <Avatar name={comment.author?.full_name} src={comment.author?.avatar_url} size={6} />
                   <span className="max-w-full break-words font-medium">{comment.author?.full_name || 'Unknown author'}</span>
                   {comment.created_at && !Number.isNaN(date.getTime()) && <time dateTime={comment.created_at}>{date.toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</time>}
                 </div>

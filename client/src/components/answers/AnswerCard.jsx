@@ -1,3 +1,4 @@
+import Avatar from '../common/Avatar.jsx';
 import { lazy, Suspense, useState } from 'react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import Button from '../common/Button.jsx';
@@ -23,7 +24,8 @@ export default function AnswerCard({ answer, canAccept, acceptanceDisabled, onTo
       }`}
     >
       <div className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-2">
-        <span className="break-words text-sm font-semibold text-ink">{answer.author?.full_name || 'Unknown author'}</span>
+        <Avatar name={answer.author?.full_name} src={answer.author?.avatar_url} size={6} />
+          <span className="break-words text-sm font-semibold text-ink">{answer.author?.full_name || 'Unknown author'}</span>
         <VoteControl targetType="answer" targetId={answer.id} initialCount={answer.vote_count} />
         {answer.is_accepted && (
           <span className="rounded bg-success/10 px-2 py-0.5 text-xs font-medium text-success">Accepted answer</span>

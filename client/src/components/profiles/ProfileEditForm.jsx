@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { apiClient } from '../../lib/apiClient.js';
+import AvatarEditor from './AvatarEditor.jsx';
 import EditForm from '../common/EditForm.jsx';
 import Input from '../common/Input.jsx';
 import Select from '../common/Select.jsx';
 import ErrorState from '../common/ErrorState.jsx';
 
-export default function ProfileEditForm({ profile, onSaved, onCancel }) {
+export default function ProfileEditForm({ profile, onSaved, onCancel, onAvatarSaved }) {
+  const [avatarState, setAvatarState] = useState({ busy: false, draft: false });
   const { updateProfile } = useAuth();
   const [form, setForm] = useState({ full_name: profile.full_name, department_id: profile.department?.id || '', course_id: profile.course?.id || '', year_level: String(profile.year_level) });
   const [departmentsResult, setDepartmentsResult] = useState(null);
@@ -45,9 +47,10 @@ export default function ProfileEditForm({ profile, onSaved, onCancel }) {
     return errors;
   }
   return (
-    <EditForm label="Edit profile" onSaved={onSaved} onCancel={onCancel} validate={validate} disabled={!ready}
+    <EditForm label="Edit profile" onSaved={onSaved} onCancel={onCancel} validate={validate} disabled={!ready || avatarState.busy || avatarState.draft} cancelDisabled={avatarState.busy}
       onSave={() => updateProfile({ full_name: form.full_name.trim(), department_id: form.department_id, course_id: form.course_id, year_level: Number(form.year_level) })}>
       {errors => <>
+        <AvatarEditor profile={profile} onSaved={onAvatarSaved} onStateChange={setAvatarState} />
         <Input id="edit-profile-name" label="Full name" required minLength={2} maxLength={120} value={form.full_name} onChange={event => update('full_name', event.target.value)} error={errors.full_name} />
         <Input id="edit-profile-student-id" label="Student ID" value={profile.student_id} readOnly hint="Your student ID cannot be changed here." />
         <Select id="edit-profile-department" label="Department" required value={form.department_id} disabled={!departmentsResult?.data} onChange={event => update('department_id', event.target.value)} error={errors.department_id}>

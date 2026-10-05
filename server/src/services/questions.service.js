@@ -1,4 +1,5 @@
 import { supabaseAdmin } from '../config/supabase.js';
+import { withAuthorAvatars } from './avatars.service.js';
 import { AppError } from '../utils/AppError.js';
 import { upsertTagsByName } from './tags.service.js';
 
@@ -6,7 +7,7 @@ import { upsertTagsByName } from './tags.service.js';
 // foreign keys - no schema changes, just relational selects.
 const QUESTION_SELECT = `
   id, title, body, created_at, updated_at, author_id, department_id,
-  author:author_id ( id, full_name, student_id ),
+  author:author_id ( id, full_name, student_id, avatar_path, updated_at ),
   department:department_id ( id, name ),
   question_tags ( tags ( id, name ) ),
   answers ( id, is_accepted ),
@@ -60,7 +61,7 @@ export async function listQuestions({ department_id, sort = 'newest', search, pa
   const from = (page - 1) * limit;
   const items = shaped.slice(from, from + limit);
 
-  return { items, total: shaped.length, page, limit };
+  return { items: await withAuthorAvatars(items), total: shaped.length, page, limit };
 }
 
 export async function getQuestionById(id) {
@@ -74,7 +75,7 @@ export async function getQuestionById(id) {
     if (error.code === 'PGRST116') throw new AppError('Question not found', 404);
     throw new AppError(error.message, 500);
   }
-  return shapeQuestion(data);
+  return (await withAuthorAvatars([shapeQuestion(data)]))[0];
 }
 
 export async function getQuestionAuthorId(id) {

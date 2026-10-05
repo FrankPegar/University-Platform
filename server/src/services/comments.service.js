@@ -1,9 +1,10 @@
 import { supabaseAdmin } from '../config/supabase.js';
+import { withAuthorAvatars } from './avatars.service.js';
 import { AppError } from '../utils/AppError.js';
 
 const COMMENT_SELECT = `
   id, question_id, answer_id, body, created_at,
-  author:author_id ( id, full_name, student_id )
+  author:author_id ( id, full_name, student_id, avatar_path, updated_at )
 `;
 
 export async function listCommentsForQuestion(questionId) {
@@ -14,7 +15,7 @@ export async function listCommentsForQuestion(questionId) {
     .order('created_at', { ascending: true });
 
   if (error) throw new AppError(error.message, 500);
-  return data;
+  return withAuthorAvatars(data || []);
 }
 
 export async function listCommentsForAnswer(answerId) {
@@ -25,7 +26,7 @@ export async function listCommentsForAnswer(answerId) {
     .order('created_at', { ascending: true });
 
   if (error) throw new AppError(error.message, 500);
-  return data;
+  return withAuthorAvatars(data || []);
 }
 
 export async function createComment({ author_id, question_id, answer_id, body }) {
@@ -47,7 +48,7 @@ export async function createComment({ author_id, question_id, answer_id, body })
     }
     throw new AppError(error.message, 400);
   }
-  return data;
+  return (await withAuthorAvatars([data]))[0];
 }
 
 export async function deleteComment(id, requestingUserId) {

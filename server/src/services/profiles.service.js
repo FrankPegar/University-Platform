@@ -1,8 +1,9 @@
 import { supabaseAdmin } from '../config/supabase.js';
+import { withAvatarUrls } from './avatars.service.js';
 import { AppError } from '../utils/AppError.js';
 
 const PROFILE_SELECT = `
-  id, full_name, student_id, year_level, created_at, updated_at,
+  id, full_name, student_id, year_level, created_at, updated_at, avatar_path,
   department:department_id ( id, name ),
   course:course_id ( id, name )
 `;
@@ -18,7 +19,7 @@ export async function getProfileById(id) {
     if (error.code === 'PGRST116') throw new AppError('Profile not found', 404);
     throw new AppError(error.message, 500);
   }
-  return data;
+  return (await withAvatarUrls([data]))[0];
 }
 
 export async function updateProfile(id, updates) {
@@ -39,5 +40,5 @@ export async function updateProfile(id, updates) {
     }
     throw new AppError(error.message, 400);
   }
-  return data;
+  return (await withAvatarUrls([data]))[0];
 }

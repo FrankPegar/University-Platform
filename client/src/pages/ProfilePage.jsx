@@ -44,7 +44,7 @@ export default function ProfilePage() {
     <div>
       <h1 className="mb-6 text-xl font-semibold tracking-tight text-ink">Profile</h1>
       {editing ? (
-        <ProfileEditForm profile={profile} onCancel={() => setEditing(false)} onSaved={(updated) => {
+        <ProfileEditForm profile={profile} onAvatarSaved={setProfile} onCancel={() => setEditing(false)} onSaved={(updated) => {
           setProfile(updated);
           setEditing(false);
         }} />
@@ -52,7 +52,7 @@ export default function ProfilePage() {
 
       <div className="rounded border border-border bg-surface p-6">
         <div className="flex items-center gap-4">
-          <Avatar name={profile.full_name} size={10} />
+          <Avatar src={profile.avatar_url} name={profile.full_name} size={10} />
           <div>
             <p className="font-semibold text-ink">{profile.full_name}</p>
             <p className="text-sm text-ink-muted">Student ID {profile.student_id}</p>

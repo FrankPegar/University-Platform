@@ -8,7 +8,26 @@ const ws = new WebSocket(target.webSocketDebuggerUrl);
 await new Promise(r=>ws.addEventListener('open',r,{once:true}));
 let seq=0; const pending=new Map(), errors=[], requests=[], responses=[], report=[];
 ws.addEventListener('message',({data})=>{const m=JSON.parse(data);if(m.id){const p=pending.get(m.id);pending.delete(m.id);m.error?p.reject(m.error):p.resolve(m.result);}if(m.method==='Runtime.exceptionThrown')errors.push(m.params.exceptionDetails);if(m.method==='Network.requestWillBeSent'&&m.params.request.url.includes(':4000/api/'))requests.push({url:m.params.request.url,method:m.params.request.method});if(m.method==='Network.responseReceived'&&m.params.response.url.includes(':4000/api/'))responses.push({url:m.params.response.url,status:m.params.response.status});});
-const send=(method,params={})=>new Promise((resolve,reject)=>{const id=++seq;pending.set(id,{resolve,reject});ws.send(JSON.stringify({id,method,params}));});
+// Wait for the new document before interacting; a reload reply can arrive
+// while the old login form is still present.
+const send = (method, params = {}) => {
+  let loaded = Promise.resolve();
+  if (['Page.navigate', 'Page.reload'].includes(method)) {
+    loaded = new Promise((resolve, reject) => {
+      const timer = setTimeout(() => { ws.removeEventListener('message', onLoad); reject(new Error('Navigation load timed out')); }, 30000);
+      function onLoad({ data }) {
+        if (JSON.parse(data).method === 'Page.loadEventFired') {
+          clearTimeout(timer); ws.removeEventListener('message', onLoad); resolve();
+        }
+      }
+      ws.addEventListener('message', onLoad);
+    });
+  }
+  const response = new Promise((resolve, reject) => {
+    const n = ++seq; pending.set(n, { resolve, reject }); ws.send(JSON.stringify({ id: n, method, params }));
+  });
+  return Promise.all([response, loaded]).then(([result]) => result);
+};
 const ev=async expression=>{const r=await send('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true});if(r.exceptionDetails)throw Error(JSON.stringify(r.exceptionDetails));return r.result.value;};
 const until=async expression=>{for(let i=0;i<200;i++){if(await ev(`Boolean(${expression})`))return;await new Promise(r=>setTimeout(r,100));}throw Error('Timed out: '+expression);};
 const nav=async path=>{await send('Page.navigate',{url:'http://localhost:5173'+path});await until(`document.readyState==='complete'`);};

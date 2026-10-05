@@ -1,3 +1,4 @@
+import Avatar from '../common/Avatar.jsx';
 import { Link } from 'react-router-dom';
 
 export default function QuestionCard({ question }) {
@@ -35,6 +36,7 @@ export default function QuestionCard({ question }) {
           </div>
         )}
         <div className="mt-4 flex flex-wrap gap-x-2 gap-y-1 break-words text-xs text-ink-muted">
+          <Avatar name={question.author?.full_name} src={question.author?.avatar_url} size={6} />
           <span>{question.author?.full_name || 'Unknown author'}</span>
           <span aria-hidden="true">·</span>
           <span>{question.department?.name || 'Unknown department'}</span>

@@ -100,9 +100,17 @@ export function AuthProvider({ children }) {
     return updated;
   }, [session, user]);
 
+  const updateAvatar = useCallback(async (file) => {
+    const token = session?.access_token;
+    const path = `/profiles/${encodeURIComponent(user.id)}/avatar`;
+    const updated = file ? await apiClient.upload(path, file, { token }) : await apiClient.delete(path, { token });
+    if (activeToken.current === token) setProfile(updated);
+    return updated;
+  }, [session, user]);
+
   const value = useMemo(
-    () => ({ status, session, user, profile, login, register, logout, updateProfile }),
-    [status, session, user, profile, login, register, logout, updateProfile]
+    () => ({ status, session, user, profile, login, register, logout, updateProfile, updateAvatar }),
+    [status, session, user, profile, login, register, logout, updateProfile, updateAvatar]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

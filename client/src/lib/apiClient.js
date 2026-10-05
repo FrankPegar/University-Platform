@@ -15,7 +15,7 @@ export class ApiError extends Error {
  * { success, data } / { success, error } response shape used by every
  * endpoint in server/src.
  */
-async function request(path, { method = 'GET', body, token, params } = {}) {
+async function request(path, { method = 'GET', body, token, params, file } = {}) {
   const url = new URL(`${BASE_URL}${path}`);
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
@@ -25,7 +25,7 @@ async function request(path, { method = 'GET', body, token, params } = {}) {
     });
   }
 
-  const headers = { 'Content-Type': 'application/json' };
+  const headers = { 'Content-Type': file ? file.type : 'application/json' };
   if (token) headers.Authorization = `Bearer ${token}`;
 
   let response;
@@ -33,7 +33,7 @@ async function request(path, { method = 'GET', body, token, params } = {}) {
     response = await fetch(url.toString(), {
       method,
       headers,
-      body: body !== undefined ? JSON.stringify(body) : undefined,
+      body: file || (body !== undefined ? JSON.stringify(body) : undefined),
     });
   } catch {
     throw new ApiError(
@@ -54,6 +54,7 @@ async function request(path, { method = 'GET', body, token, params } = {}) {
 }
 
 export const apiClient = {
+  upload: (path, file, options) => request(path, { ...options, method: 'POST', file }),
   get: (path, options) => request(path, { ...options, method: 'GET' }),
   post: (path, body, options) => request(path, { ...options, method: 'POST', body }),
   patch: (path, body, options) => request(path, { ...options, method: 'PATCH', body }),

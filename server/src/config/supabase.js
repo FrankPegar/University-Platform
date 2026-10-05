@@ -20,3 +20,11 @@ export const supabaseAdmin = createClient(env.supabaseUrl, env.supabaseServiceRo
 export const supabaseAuth = createClient(env.supabaseUrl, env.supabaseAnonKey, {
   auth: { autoRefreshToken: false, persistSession: false },
 });
+
+// A request-scoped client; never mutate another student's auth/session state.
+export function createUserClient(accessToken) {
+  return createClient(env.supabaseUrl, env.supabaseAnonKey, {
+    global: { headers: { Authorization: `Bearer ${accessToken}` } },
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
+}

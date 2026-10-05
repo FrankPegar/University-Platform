@@ -1,3 +1,4 @@
+import Avatar from '../components/common/Avatar.jsx';
 import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -94,6 +95,7 @@ export default function QuestionDetailPage() {
       <article className="min-w-0 rounded border border-border bg-surface p-5 sm:p-6">
         <h1 className="break-words text-xl font-semibold tracking-tight text-ink">{question.title}</h1>
         <div className="mt-3 flex flex-wrap gap-x-2 gap-y-1 break-words text-sm text-ink-muted">
+          <Avatar name={question.author?.full_name} src={question.author?.avatar_url} size={6} />
           <span>{question.author?.full_name || 'Unknown author'}</span>
           <span aria-hidden="true">·</span>
           <span>{question.department?.name || 'Unknown department'}</span>

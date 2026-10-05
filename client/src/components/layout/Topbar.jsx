@@ -54,7 +54,7 @@ export default function Topbar({ onOpenMenu }) {
           aria-haspopup="menu"
           aria-expanded={menuOpen}
         >
-          <Avatar name={profile?.full_name} />
+          <Avatar src={profile?.avatar_url} name={profile?.full_name} />
           <span className="hidden text-sm font-medium text-ink sm:inline">
             {profile?.full_name || 'Account'}
           </span>

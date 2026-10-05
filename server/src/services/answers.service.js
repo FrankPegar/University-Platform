@@ -1,10 +1,11 @@
 import { supabaseAdmin } from '../config/supabase.js';
+import { withAuthorAvatars } from './avatars.service.js';
 import { AppError } from '../utils/AppError.js';
 import { getQuestionAuthorId } from './questions.service.js';
 
 const ANSWER_SELECT = `
   id, question_id, body, is_accepted, created_at, updated_at,
-  author:author_id ( id, full_name, student_id ),
+  author:author_id ( id, full_name, student_id, avatar_path, updated_at ),
   votes!answer_id ( id )
 `;
 
@@ -34,7 +35,7 @@ export async function listAnswersForQuestion(questionId) {
     .order('created_at', { ascending: true });
 
   if (error) throw new AppError(error.message, 500);
-  return (data || []).map(shapeAnswer);
+  return withAuthorAvatars((data || []).map(shapeAnswer));
 }
 
 export async function createAnswer({ question_id, author_id, body }) {
@@ -47,7 +48,7 @@ export async function createAnswer({ question_id, author_id, body }) {
     .single();
 
   if (error) throw new AppError(error.message, 400);
-  return shapeAnswer(data);
+  return (await withAuthorAvatars([shapeAnswer(data)]))[0];
 }
 
 async function getAnswerRow(id) {
@@ -78,7 +79,7 @@ export async function updateAnswer(id, requestingUserId, { body }) {
     .single();
 
   if (error) throw new AppError(error.message, 400);
-  return shapeAnswer(data);
+  return (await withAuthorAvatars([shapeAnswer(data)]))[0];
 }
 
 /**
@@ -112,7 +113,7 @@ export async function acceptAnswer(answerId, requestingUserId) {
     .single();
 
   if (error) throw new AppError(error.message, 400);
-  return shapeAnswer(data);
+  return (await withAuthorAvatars([shapeAnswer(data)]))[0];
 }
 
 export async function unacceptAnswer(answerId, requestingUserId) {
@@ -131,5 +132,5 @@ export async function unacceptAnswer(answerId, requestingUserId) {
     .single();
 
   if (error) throw new AppError(error.message, 400);
-  return shapeAnswer(data);
+  return (await withAuthorAvatars([shapeAnswer(data)]))[0];
 }

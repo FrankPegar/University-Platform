@@ -3,7 +3,7 @@ import Button from './Button.jsx';
 
 // Shared save lifecycle for inline editors. Cancel unmounts the editor and
 // discards its local draft; a pending save must finish before it can be closed.
-export default function EditForm({ label, validate, onSave, onSaved, onCancel, disabled, children }) {
+export default function EditForm({ label, validate, onSave, onSaved, onCancel, disabled, cancelDisabled, children }) {
   const [errors, setErrors] = useState({});
   const [error, setError] = useState(null);
   const [saving, setSaving] = useState(false);
@@ -54,7 +54,7 @@ export default function EditForm({ label, validate, onSave, onSaved, onCancel, d
         <div className="flex flex-col gap-4">{children(errors)}</div>
         <div className="mt-5 flex flex-wrap gap-2">
           <Button type="submit" loading={saving} disabled={disabled}>{saving ? 'Saving…' : 'Save'}</Button>
-          <Button type="button" variant="secondary" disabled={saving} onClick={onCancel}>Cancel</Button>
+          <Button type="button" variant="secondary" disabled={saving || cancelDisabled} onClick={onCancel}>Cancel</Button>
         </div>
       </fieldset>
       {saving && <p role="status" className="mt-3 text-sm text-ink-muted">Saving changes…</p>}
