@@ -18,6 +18,7 @@ test('accepted answers HTTP authorization and state transitions', async (t) => {
   let failWrite = false;
   mock.method(supabaseAdmin.auth, 'getUser', async token => ({ data: { user: ['alice', 'bob'].includes(token) ? { id: token } : null }, error: null }));
   mock.method(supabaseAdmin, 'from', table => {
+    if (table === 'notifications') return { insert: async () => ({ error: null }) };
     assert.ok(['questions', 'answers'].includes(table));
     const filters = [];
     let payload, single = false;

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
 import Avatar from '../common/Avatar.jsx';
+import NotificationBell from '../social/NotificationBell.jsx';
 
 export default function Topbar({ onOpenMenu }) {
   const { profile, logout } = useAuth();
@@ -47,6 +48,7 @@ export default function Topbar({ onOpenMenu }) {
         />
       </form>
 
+      <NotificationBell />
       <div className="relative">
         <button
           onClick={() => setMenuOpen((v) => !v)}

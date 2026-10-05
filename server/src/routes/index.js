@@ -10,6 +10,7 @@ import questionsRoutes from './questions.routes.js';
 import answersRoutes from './answers.routes.js';
 import commentsRoutes from './comments.routes.js';
 import votesRoutes from './votes.routes.js';
+import notificationsRoutes from './notifications.routes.js';
 
 const router = Router();
 
@@ -26,5 +27,6 @@ router.use('/questions', questionsRoutes);
 router.use('/answers', answersRoutes);
 router.use('/comments', commentsRoutes);
 router.use('/votes', votesRoutes);
+router.use('/notifications', notificationsRoutes);
 
 export default router;

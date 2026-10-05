@@ -2,6 +2,7 @@ import { supabaseAdmin } from '../config/supabase.js';
 import { withAuthorAvatars } from './avatars.service.js';
 import { AppError } from '../utils/AppError.js';
 import { getQuestionAuthorId } from './questions.service.js';
+import { createNotification } from './notifications.service.js';
 
 const ANSWER_SELECT = `
   id, question_id, body, is_accepted, created_at, updated_at,
@@ -39,7 +40,7 @@ export async function listAnswersForQuestion(questionId) {
 }
 
 export async function createAnswer({ question_id, author_id, body }) {
-  await getQuestionAuthorId(question_id); // 404s if the question doesn't exist
+  const questionAuthorId = await getQuestionAuthorId(question_id); // 404s if the question doesn't exist
 
   const { data, error } = await supabaseAdmin
     .from('answers')
@@ -48,6 +49,7 @@ export async function createAnswer({ question_id, author_id, body }) {
     .single();
 
   if (error) throw new AppError(error.message, 400);
+  await createNotification({ recipient_id: questionAuthorId, actor_id: author_id, type: 'question_answer', question_id, answer_id: data.id });
   return (await withAuthorAvatars([shapeAnswer(data)]))[0];
 }
 
@@ -113,6 +115,8 @@ export async function acceptAnswer(answerId, requestingUserId) {
     .single();
 
   if (error) throw new AppError(error.message, 400);
+  if (!answer.is_accepted) await createNotification({ recipient_id: answer.author_id, actor_id: requestingUserId,
+    type: 'answer_accepted', question_id: answer.question_id, answer_id: answerId });
   return (await withAuthorAvatars([shapeAnswer(data)]))[0];
 }
 

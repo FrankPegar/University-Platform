@@ -1,6 +1,7 @@
 import { supabaseAdmin } from '../config/supabase.js';
 import { withAuthorAvatars } from './avatars.service.js';
 import { AppError } from '../utils/AppError.js';
+import { notifyCommentCreated } from './notifications.service.js';
 
 const COMMENT_SELECT = `
   id, question_id, answer_id, body, created_at,
@@ -48,6 +49,7 @@ export async function createComment({ author_id, question_id, answer_id, body })
     }
     throw new AppError(error.message, 400);
   }
+  await notifyCommentCreated(data, author_id);
   return (await withAuthorAvatars([data]))[0];
 }
 

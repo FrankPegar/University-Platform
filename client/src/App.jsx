@@ -10,6 +10,8 @@ import DepartmentsPage from './pages/DepartmentsPage.jsx';
 import AskQuestionPage from './pages/AskQuestionPage.jsx';
 import QuestionDetailPage from './pages/QuestionDetailPage.jsx';
 import ProfilePage from './pages/ProfilePage.jsx';
+import NotificationsPage from './pages/NotificationsPage.jsx';
+import { NotificationsProvider } from './context/NotificationsContext.jsx';
 
 export default function App() {
   return (
@@ -19,13 +21,14 @@ export default function App() {
         <Route path="/register" element={<RegisterPage />} />
 
         <Route element={<ProtectedRoute />}>
-          <Route element={<AppShell />}>
+          <Route element={<NotificationsProvider><AppShell /></NotificationsProvider>}>
             <Route path="/" element={<HomeFeedPage />} />
             <Route path="/explore" element={<ExplorePage />} />
             <Route path="/departments" element={<DepartmentsPage />} />
             <Route path="/ask" element={<AskQuestionPage />} />
             <Route path="/questions/:id" element={<QuestionDetailPage />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/notifications" element={<NotificationsPage />} />
           </Route>
         </Route>
 
