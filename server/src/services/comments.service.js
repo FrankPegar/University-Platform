@@ -51,7 +51,7 @@ export async function createComment({ author_id, question_id, answer_id, body })
   return (await withAuthorAvatars([data]))[0];
 }
 
-export async function deleteComment(id, requestingUserId) {
+async function requireCommentAuthor(id, requestingUserId, action) {
   const { data, error: fetchError } = await supabaseAdmin
     .from('comments')
     .select('id, author_id')
@@ -63,9 +63,24 @@ export async function deleteComment(id, requestingUserId) {
     throw new AppError(fetchError.message, 500);
   }
   if (data.author_id !== requestingUserId) {
-    throw new AppError('Only the comment author can delete this comment', 403);
+    throw new AppError(`Only the comment author can ${action} this comment`, 403);
   }
+}
 
-  const { error } = await supabaseAdmin.from('comments').delete().eq('id', id);
+export async function updateComment(id, requestingUserId, { body }) {
+  await requireCommentAuthor(id, requestingUserId, 'edit');
+  const { data, error } = await supabaseAdmin.from('comments')
+    .update({ body }).eq('id', id).eq('author_id', requestingUserId)
+    .select(COMMENT_SELECT).single();
+  if (error) {
+    if (error.code === 'PGRST116') throw new AppError('Comment not found', 404);
+    throw new AppError(error.message, 400);
+  }
+  return (await withAuthorAvatars([data]))[0];
+}
+
+export async function deleteComment(id, requestingUserId) {
+  await requireCommentAuthor(id, requestingUserId, 'delete');
+  const { error } = await supabaseAdmin.from('comments').delete().eq('id', id).eq('author_id', requestingUserId);
   if (error) throw new AppError(error.message, 400);
 }

@@ -29,3 +29,9 @@ export const commentIdParamSchema = z.object({
   body: z.any().optional(),
   query: z.any().optional(),
 });
+
+export const updateCommentSchema = z.object({
+  params: z.object({ id: uuid }),
+  body: z.object({ body: z.string().trim().min(1).max(1000) }),
+  query: z.any().optional(),
+});

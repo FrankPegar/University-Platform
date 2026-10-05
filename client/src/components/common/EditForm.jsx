@@ -3,7 +3,7 @@ import Button from './Button.jsx';
 
 // Shared save lifecycle for inline editors. Cancel unmounts the editor and
 // discards its local draft; a pending save must finish before it can be closed.
-export default function EditForm({ label, validate, onSave, onSaved, onCancel, disabled, cancelDisabled, children }) {
+export default function EditForm({ label, validate, onSave, onSaved, onCancel, disabled, cancelDisabled, compact = false, children }) {
   const [errors, setErrors] = useState({});
   const [error, setError] = useState(null);
   const [saving, setSaving] = useState(false);
@@ -46,13 +46,13 @@ export default function EditForm({ label, validate, onSave, onSaved, onCancel, d
   }
 
   return (
-    <form aria-label={label} onSubmit={submit} noValidate aria-busy={saving} className="my-4 rounded border border-border bg-surface p-4 sm:p-6">
-      <h2 className="mb-4 text-base font-semibold text-ink">{label}</h2>
+    <form aria-label={label} onSubmit={submit} noValidate aria-busy={saving} className={compact ? 'my-2 rounded border border-border bg-surface p-3' : 'my-4 rounded border border-border bg-surface p-4 sm:p-6'}>
+      <h2 className={compact ? 'sr-only' : 'mb-4 text-base font-semibold text-ink'}>{label}</h2>
       {error && <p role="alert" className="mb-4 rounded border border-danger/30 bg-danger/5 p-3 text-sm text-danger">{error}</p>}
       <fieldset disabled={saving} className="min-w-0">
         <legend className="sr-only">{label} fields</legend>
         <div className="flex flex-col gap-4">{children(errors)}</div>
-        <div className="mt-5 flex flex-wrap gap-2">
+        <div className={`${compact ? 'mt-2' : 'mt-5'} flex flex-wrap gap-2`}>
           <Button type="submit" loading={saving} disabled={disabled}>{saving ? 'Saving…' : 'Save'}</Button>
           <Button type="button" variant="secondary" disabled={saving || cancelDisabled} onClick={onCancel}>Cancel</Button>
         </div>

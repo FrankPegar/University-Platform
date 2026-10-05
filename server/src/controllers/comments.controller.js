@@ -22,3 +22,7 @@ export const deleteComment = asyncHandler(async (req, res) => {
   await commentsService.deleteComment(req.params.id, req.user.id);
   ok(res, { deleted: true });
 });
+
+export const updateComment = asyncHandler(async (req, res) => {
+  ok(res, await commentsService.updateComment(req.params.id, req.user.id, req.body));
+});

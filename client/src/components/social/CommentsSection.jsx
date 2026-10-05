@@ -1,16 +1,16 @@
-import Avatar from '../common/Avatar.jsx';
+import CommentItem from './CommentItem.jsx';
 import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { apiClient } from '../../lib/apiClient.js';
 import Button from '../common/Button.jsx';
 
 export default function CommentsSection({ targetType, targetId }) {
-  const { session } = useAuth();
+  const { session, user } = useAuth();
   const token = session?.access_token;
-  return <CommentsThread key={`${targetType}:${targetId}:${token}`} targetType={targetType} targetId={targetId} token={token} />;
+  return <CommentsThread key={`${targetType}:${targetId}:${token}`} targetType={targetType} targetId={targetId} token={token} userId={user?.id} />;
 }
 
-function CommentsThread({ targetType, targetId, token }) {
+function CommentsThread({ targetType, targetId, token, userId }) {
   const [result, setResult] = useState(null);
   const [attempt, setAttempt] = useState(0);
   const [body, setBody] = useState('');
@@ -84,19 +84,14 @@ function CommentsThread({ targetType, targetId, token }) {
         <p className="text-xs text-ink-muted">No comments yet.</p>
       ) : (
         <ul className="divide-y divide-border">
-          {result.comments.map((comment) => {
-            const date = new Date(comment.created_at);
-            return (
-              <li key={comment.id} className="py-2">
-                <p className="whitespace-pre-wrap break-words text-sm text-ink">{comment.body}</p>
-                <div className="mt-1 flex flex-wrap gap-x-2 gap-y-1 text-xs text-ink-muted">
-                  <Avatar name={comment.author?.full_name} src={comment.author?.avatar_url} size={6} />
-                  <span className="max-w-full break-words font-medium">{comment.author?.full_name || 'Unknown author'}</span>
-                  {comment.created_at && !Number.isNaN(date.getTime()) && <time dateTime={comment.created_at}>{date.toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</time>}
-                </div>
-              </li>
-            );
-          })}
+          {result.comments.map(comment => <CommentItem key={comment.id} comment={comment} userId={userId} token={token}
+            onSaved={updated => {
+              setResult(current => ({ comments: current.comments.map(item => item.id === updated.id ? updated : item) }));
+              setNotice('Comment updated.');
+            }} onDeleted={id => {
+              setResult(current => ({ comments: current.comments.filter(item => item.id !== id) }));
+              setNotice('Comment deleted.');
+            }} />)}
         </ul>
       )}
       <form aria-label={`Add ${targetType} comment`} onSubmit={submitComment} noValidate aria-busy={submitting} className="mt-3">
